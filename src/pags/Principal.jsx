@@ -4,7 +4,7 @@ import Formulario from "../componentes/Formulario"
 
 export default function Principal() {
 return (
-    <div>
+    <div className="bg-gray-900">
         <Cabecera />
         <Formulario/>
         <Pie/>
