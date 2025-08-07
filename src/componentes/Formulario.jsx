@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
+import emailjs from 'emailjs-com';
 
 export default function Formulario() {
   const [nombre, setNombre] = useState('');
@@ -10,7 +11,6 @@ export default function Formulario() {
   const [enlaceRol, setEnlaceRol] = useState('');
   const firmaRef = useRef();
 
-  // Mapea cada rol a un enlace de Google Drive
   const enlacesPorRol = {
     Mantenimiento: "https://drive.google.com/drive/folders/1Ikl7SC5VigaoPQnJ4Azm_c0YtiUN-yOr?usp=sharing",
     Producción: "https://drive.google.com/drive/folders/1Ec867GKBIkjWp68SjHrZR9dPYsZiKQcv?usp=sharing",
@@ -22,46 +22,39 @@ export default function Formulario() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!acepta) {
       alert('Debes aceptar los documentos.');
       return;
     }
 
     const firmaURL = firmaRef.current.toDataURL();
+    const enlace = enlacesPorRol[rol];
+
+    const templateParams = {
+      nombre,
+      apellidos,
+      rol,
+      firma: firmaURL,
+      enlace
+    };
 
     try {
-      const response = await fetch("https://formsubmit.co/javipj27@gmail.com", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          Nombre: nombre,
-          Apellidos: apellidos,
-          Rol: rol,
-          Firma: firmaURL,
-        }),
-      });
-
-      if (response.ok) {
-        setEnviado(true);
-        const enlace = enlacesPorRol[rol];
-        setEnlaceRol(enlace);
-        alert("Formulario enviado correctamente por email.");
-      } else {
-        alert("Error al enviar el formulario.");
-      }
+      await emailjs.send(
+        'service_gmail',      // Reemplaza con tu Service ID
+        'template_gmail',     // Reemplaza con tu Template ID
+        templateParams,
+        'xzTnwfXfAwxrtL9JG'  // Reemplaza con tu Public Key
+      );
+      setEnviado(true);
+      setEnlaceRol(enlace);
+      alert('Formulario enviado automáticamente por email.');
     } catch (error) {
-      console.error("Error al enviar:", error);
-      alert("Ocurrió un error.");
+      console.error('Error al enviar:', error);
+      alert('Hubo un problema al enviar el formulario.');
     }
   };
 
-  const limpiarFirma = () => {
-    firmaRef.current.clear();
-  };
+  const limpiarFirma = () => firmaRef.current.clear();
 
   return (
     <div className="max-w-lg mx-auto bg-gray-800 p-8 rounded-xl shadow-2xl mb-5">
@@ -90,12 +83,9 @@ export default function Formulario() {
           required
         >
           <option value="" disabled>Selecciona tu rol</option>
-          <option value="Mantenimiento">Mantenimiento</option>
-          <option value="Producción">Producción</option>
-          <option value="Calidad">Calidad</option>
-          <option value="Logística">Logística</option>
-          <option value="I+D">I+D</option>
-          <option value="Marketing">Marketing</option>
+          {Object.keys(enlacesPorRol).map((key) => (
+            <option key={key} value={key}>{key}</option>
+          ))}
         </select>
         <div className="form-control">
           <label className="cursor-pointer label">
@@ -116,7 +106,7 @@ export default function Formulario() {
           <div className="border border-gray-300 rounded bg-white">
             <SignatureCanvas
               penColor="black"
-              canvasProps={{ width: 400, height: 150, className: 'signature-canvas' }}
+              canvasProps={{ width: 400, height: 150 }}
               ref={firmaRef}
             />
           </div>
@@ -134,14 +124,12 @@ export default function Formulario() {
         {enviado && (
           <div className="alert alert-success mt-4">
             <p>Formulario enviado correctamente.</p>
-            {enlaceRol && (
-              <p>
-                Accede a los documentos de PRL para tu rol:&nbsp;
-                <a href={enlaceRol} target="_blank" rel="noopener noreferrer" className="link link-primary underline">
-                  Abrir carpeta de Google Drive
-                </a>
-              </p>
-            )}
+            <p>
+              Documentos PRL:&nbsp;
+              <a href={enlaceRol} target="_blank" rel="noreferrer" className="link link-primary underline">
+                Ver carpeta
+              </a>
+            </p>
           </div>
         )}
       </form>
