@@ -58,7 +58,7 @@ export default function Formulario() {
 
   return (
     <div className="max-w-lg mx-auto bg-gray-800 p-8 rounded-xl shadow-2xl mb-5">
-      <h2 className="text-2xl font-bold mb-4">Formulario de Firma</h2>
+      <h2 className="text-2xl font-bold mb-4 text-white">Formulario de Firma</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
@@ -89,12 +89,12 @@ export default function Formulario() {
         </select>
         <div className="form-control">
           <label className="cursor-pointer label">
-            <span className="label-text">
+            <span className="label-text text-white">
               Acepto los términos y documentos recibidos
             </span>
             <input
               type="checkbox"
-              className="checkbox"
+              className="checkbox border-white text-white"
               checked={acepta}
               onChange={() => setAcepta(!acepta)}
               required
@@ -102,7 +102,7 @@ export default function Formulario() {
           </label>
         </div>
         <div>
-          <p className="mb-2">Firma:</p>
+          <p className="mb-2 text-white">Firma:</p>
           <div className="border border-gray-300 rounded bg-white">
             <SignatureCanvas
               penColor="black"
